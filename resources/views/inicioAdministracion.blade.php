@@ -5,6 +5,7 @@
 
 	{!!Html::style('/css/estilosInicioAdministracion.css')!!}
 	{!!Html::style('/css/fontello.css')!!}
+	{!!Html::style('/css/stylesheet.css')!!}
 
 	<script type="text/javascript">
 		
@@ -47,6 +48,7 @@
 	</script>
 
 	<style>
+		@font-face {font-family:"JI Chimichanga";src:url("JI_Chimichanga.eot?") format("eot"),url("JI_Chimichanga.woff") format("woff"),url("JI_Chimichanga.ttf") format("truetype"),url("JI_Chimichanga.svg#JIChimichanga") format("svg");font-weight:normal;font-style:normal;}
 		table {
 		    border-collapse: collapse;
 		    width: 100%;
@@ -57,10 +59,11 @@
 		    padding: 8px;
 		}
 
-		tr:nth-child(even){background-color: #f2f2f2}
+		tr:nth-child(even){background-color: #dbdbdb;}
+		tr:nth-child(odd){background-color: #c8c7b6;}
 
 		th {
-		    background-color: #D5EA06;
+		    background-color: #fe227c;
 		    color: black;
 		}
 	</style>
@@ -127,7 +130,7 @@
 							@endforeach
 						</tbody>
 					</table>
-					<input type="submit" id="terminarPedidoMesa1" value="Terminar pedido">
+					<a href="terminarPedido/{{1}}" class="btn btn-warning">Terminar pedido</a>
 				</div>
 				<div id="mesa2">
 					<label id="mesa">Mesa 2</label>
@@ -167,7 +170,7 @@
 							@endforeach
 						</tbody>
 					</table>
-					<input type="submit" id="terminarPedidoMesa2" value="Terminar pedido">
+					<a href="terminarPedido/{{2}}" class="btn btn-warning">Terminar pedido</a>
 				</div>
 				<div id="mesa3">
 					<label id="mesa">Mesa 3</label>
@@ -207,7 +210,7 @@
 							@endforeach
 						</tbody>
 					</table>
-					<input type="submit" id="terminarPedidoMesa3" value="Terminar pedido">
+					<a href="terminarPedido/{{3}}" class="btn btn-warning">Terminar pedido</a>
 				</div>
 				<div id="mesa4">
 					<label id="mesa">Mesa 4</label>
@@ -247,7 +250,7 @@
 							@endforeach
 						</tbody>
 					</table>
-					<input type="submit" id="terminarPedidoMesa4" value="Terminar pedido">
+					<a href="terminarPedido/{{4}}" class="btn btn-warning">Terminar pedido</a>
 				</div>
 				<div id="mesa5">
 					<label id="mesa">Mesa 5</label>
@@ -287,7 +290,7 @@
 							@endforeach
 						</tbody>
 					</table>
-					<input type="submit" id="terminarPedidoMesa6" value="Terminar pedido">
+					<a href="terminarPedido/{{5}}" class="btn btn-warning">Terminar pedido</a>
 				</div>
 				<div id="mesa6">
 					<label id="mesa">Mesa 6</label>
@@ -327,57 +330,56 @@
 							@endforeach
 						</tbody>
 					</table>
-					<input type="submit" id="terminarPedidoMesa6" value="Terminar pedido">
+					<a href="terminarPedido/{{6}}" class="btn btn-warning">Terminar pedido</a>
 				</div>
 				<div id="mesa7">
-					<label id="mesa">Barra</label>
-					<table style="text-align: left;">
-						<thead>
-							<th>Comida</th>
-							<th>Cantidad</th>
-						</thead>
-						<tbody>
-							@foreach($pedidoComidaM7 as $pedido)
-							<tr>
-								<td>
-									{{$pedido['nombre_comida']}}
-								</td>
-								<td>
-									{{$pedido['cantidad_comida']}}
-								</td>
-							</tr>
-							@endforeach
-						</tbody>
-					</table>
-					<table style="text-align: left;">
-						<thead>
-							<th>Bebida</th>
-							<th>Cantidad</th>
-						</thead>
-						<tbody>
-							@foreach($pedidoBebidaM7 as $pedido)
-							<tr>
-								<td>
-									{{$pedido['nombre_bebida']}}
-								</td>
-								<td>
-									{{$pedido['cantidad_bebida']}}
-								</td>
-							</tr>
-							@endforeach
-						</tbody>
-					</table>
-					<input type="submit" id="terminarPedidoBarra" value="Terminar pedido">
+						<label id="mesa">Barra</label>
+						
+						<table style="text-align: left;">
+							<thead>
+								<th>Comida</th>
+								<th>Cantidad</th>
+							</thead>
+							<tbody>
+								@foreach($pedidoComidaM7 as $pedido)
+								<tr>
+									<td>
+										{{$pedido['nombre_comida']}}
+									</td>
+									<td>
+										{{$pedido['cantidad_comida']}}
+									</td>
+								</tr>
+								@endforeach
+							</tbody>
+						</table>
+						<table style="text-align: left;">
+							<thead>
+								<th>Bebida</th>
+								<th>Cantidad</th>
+							</thead>
+							<tbody>
+								@foreach($pedidoBebidaM7 as $pedido)
+								<tr>
+									<td>
+										{{$pedido['nombre_bebida']}}
+									</td>
+									<td>
+										{{$pedido['cantidad_bebida']}}
+									</td>
+								</tr>
+								@endforeach
+							</tbody>
+						</table>
+						<a href="terminarPedido/{{7}}" class="btn btn-warning">Terminar pedido</a>
 				</div>
 			</div>
-
-
 		</section>
 		
 		
 
 		<!--Sección que contiene la pantalla de manejo de inventario-->
-		<section class="pantallaInventario">
+		<center><section class="pantallaInventario">
 			
 			<div id="contenedorOpcionesInventario">
 				</br>
@@ -392,48 +394,51 @@
 						<th>Opci&oacute;n</th>
 					</thead>
 
-					@foreach($listadoIngredientes as $ingrediente)
-						<tbody>
+					<tbody>
+						@foreach($listadoIngredientes as $ingrediente)
 							<tr>
 								<td>{{$ingrediente->nombre_ingrediente}}</td>
 								<td>{{$ingrediente->cantidad}}</td>
 								<td>
 									<a href="editarIngrediente/{{$ingrediente->idIngrediente}}" class="btn btn-warning">Editar</a>
 								</td>
-							</tr>
-						</tbody>
-					@endforeach
+							</tr>						
+						@endforeach
+					</tbody>
 						
 				</table>
 
 			</div>
 
-		</section>
+		</section></center>
 
 		<section class="pantallaReportes">
 
+		<div id="contenedorReportes">
 			</br>
 			</br>
-			<center><h2>Espacio para la generaci&oacute;n de Reportes</h2></center>
+			<center><h2>Espacio para la informaci&oacute;n de los Reportes</h2></center>
 
-			{!!Form::open(['route'=>'inicioAdministracion.retornarIngredientes.generarReporte', 'method'=>'POST'])!!}
-				
-				<table class="tablaReportes">
-					<thead>
-						<th>Reportes</th>
-					</thead>
-
-					@foreach($listadoReportes as $reporte)
+				{!!Form::open(['route'=>'inicioAdministracion.retornarIngredientes.generarReporte', 'method'=>'POST'])!!}
+					
+					<table class="tablaReportes">
+						<thead>
+							<th>Reportes</th>
+						</thead>
 						<tbody>
-							<td>{{$reporte}}</td>
+							@foreach($listadoReportes as $reporte)
+								
+								<tr>
+									<td>{{$reporte}}</td>
+								</tr>
+								
+							@endforeach
 						</tbody>
-					@endforeach
-						
-				</table>
-				{!!Form::submit('Actualizar reportes')!!}
-				
-			{!!Form::close()!!}
-			
+					</table>
+					{!!Form::submit('Actualizar reportes')!!}
+					
+				{!!Form::close()!!}
+			</div>	
 		</section>
 
 		<section class="pantallaNotificaciones">

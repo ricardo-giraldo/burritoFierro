@@ -26,16 +26,17 @@ public function generarPedidoComidaMesaUno(){
 
 		$comidasMesaUno = array();
 
-		$consultaPedidosPendientesComidasMesa1 = "select c.nombre_comida, pc.cantidad_comida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__comida pc on pc.pedido_idPedido=p.idPedido inner join comida c on pc.comida_idComida = c.idComida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 3 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
+		$consultaPedidosPendientesComidasMesa1 = "select p.idPedido, c.nombre_comida, pc.cantidad_comida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__comida pc on pc.pedido_idPedido=p.idPedido inner join comida c on pc.comida_idComida = c.idComida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 3 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
 		
 		$pedidoComidaM1 = DB::select($consultaPedidosPendientesComidasMesa1);
 
 		foreach ($pedidoComidaM1 as $pcm1) {
 				
+			$idPedido = $pcm1->idPedido;
 			$comida = $pcm1->nombre_comida;
 			$cantidad = $pcm1->cantidad_comida;
 
-			$comidasMesaUno[] = array('nombre_comida' => $comida, 'cantidad_comida' => $cantidad);  
+			$comidasMesaUno[] = array('idPedido' => $idPedido, 'nombre_comida' => $comida, 'cantidad_comida' => $cantidad);  
 
 		}
 		return $comidasMesaUno;
@@ -46,16 +47,17 @@ public function generarPedidoBebidaMesaUno(){
 
 	$bebidasMesaUno = array();
 
-	$consultaPedidosPendientesBebidasMesa1 = "select b.nombre_bebida, pb.cantidad_bebida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__bebida pb on pb.pedido_idPedido=p.idPedido inner join bebida b on pb.Bebida_idBebida = b.idBebida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 3 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
+	$consultaPedidosPendientesBebidasMesa1 = "select p.idPedido, b.nombre_bebida, pb.cantidad_bebida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__bebida pb on pb.pedido_idPedido=p.idPedido inner join bebida b on pb.Bebida_idBebida = b.idBebida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 3 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
 
 	$pedidoBebidaM1 = DB::select($consultaPedidosPendientesBebidasMesa1);
 
 	foreach ($pedidoBebidaM1 as $pbm1) {
 				
+		$idPedido = $pbm1->idPedido;
 		$bebida = $pbm1->nombre_bebida;
 		$cantidad = $pbm1->cantidad_bebida;
 
-		$bebidasMesaUno[] = array('nombre_bebida' => $bebida, 'cantidad_bebida' => $cantidad);  
+		$bebidasMesaUno[] = array('idPedido' => $idPedido, 'nombre_bebida' => $bebida, 'cantidad_bebida' => $cantidad);  
 
 	}
 	return $bebidasMesaUno;
@@ -66,16 +68,17 @@ public function generarPedidoComidaMesaDos(){
 
 		$comidasMesaDos = array();
 
-		$consultaPedidosPendientesComidasMesa2 = "select c.nombre_comida, pc.cantidad_comida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__comida pc on pc.pedido_idPedido=p.idPedido inner join comida c on pc.comida_idComida = c.idComida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 4 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
+		$consultaPedidosPendientesComidasMesa2 = "select p.idPedido, c.nombre_comida, pc.cantidad_comida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__comida pc on pc.pedido_idPedido=p.idPedido inner join comida c on pc.comida_idComida = c.idComida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 4 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
 		
 		$pedidoComidaM2 = DB::select($consultaPedidosPendientesComidasMesa2);
 
 		foreach ($pedidoComidaM2 as $pcm2) {
 				
+			$idPedido = $pcm2->idPedido;
 			$comida = $pcm2->nombre_comida;
 			$cantidad = $pcm2->cantidad_comida;
 
-			$comidasMesaDos[] = array('nombre_comida' => $comida, 'cantidad_comida' => $cantidad);  
+			$comidasMesaDos[] = array('idPedido' => $idPedido, 'nombre_comida' => $comida, 'cantidad_comida' => $cantidad);  
 
 		}
 		return $comidasMesaDos;
@@ -86,16 +89,17 @@ public function generarPedidoBebidaMesaDos(){
 
 	$bebidasMesaDos = array();
 
-	$consultaPedidosPendientesBebidasMesa2 = "select b.nombre_bebida, pb.cantidad_bebida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__bebida pb on pb.pedido_idPedido=p.idPedido inner join bebida b on pb.Bebida_idBebida = b.idBebida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 4 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
+	$consultaPedidosPendientesBebidasMesa2 = "select p.idPedido, b.nombre_bebida, pb.cantidad_bebida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__bebida pb on pb.pedido_idPedido=p.idPedido inner join bebida b on pb.Bebida_idBebida = b.idBebida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 4 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
 
 	$pedidoBebidaM2 = DB::select($consultaPedidosPendientesBebidasMesa2);
 
 	foreach ($pedidoBebidaM2 as $pbm2) {
 				
+		$idPedido = $pbm2->idPedido;
 		$bebida = $pbm2->nombre_bebida;
 		$cantidad = $pbm2->cantidad_bebida;
 
-		$bebidasMesaDos[] = array('nombre_bebida' => $bebida, 'cantidad_bebida' => $cantidad);  
+		$bebidasMesaDos[] = array('idPedido' => $idPedido, 'nombre_bebida' => $bebida, 'cantidad_bebida' => $cantidad);  
 
 	}
 	return $bebidasMesaDos;
@@ -107,16 +111,17 @@ public function generarPedidoComidaMesaTres(){
 
 		$comidasMesaTres = array();
 
-		$consultaPedidosPendientesComidasMesa3 = "select c.nombre_comida, pc.cantidad_comida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__comida pc on pc.pedido_idPedido=p.idPedido inner join comida c on pc.comida_idComida = c.idComida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 5 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
+		$consultaPedidosPendientesComidasMesa3 = "select p.idPedido, c.nombre_comida, pc.cantidad_comida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__comida pc on pc.pedido_idPedido=p.idPedido inner join comida c on pc.comida_idComida = c.idComida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 5 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
 		
 		$pedidoComidaM3 = DB::select($consultaPedidosPendientesComidasMesa3);
 
 		foreach ($pedidoComidaM3 as $pcm3) {
 				
+			$idPedido = $pcm3->idPedido;
 			$comida = $pcm3->nombre_comida;
 			$cantidad = $pcm3->cantidad_comida;
 
-			$comidasMesaTres[] = array('nombre_comida' => $comida, 'cantidad_comida' => $cantidad);  
+			$comidasMesaTres[] = array('idPedido' => $idPedido, 'nombre_comida' => $comida, 'cantidad_comida' => $cantidad);  
 
 		}
 		return $comidasMesaTres;
@@ -127,16 +132,17 @@ public function generarPedidoBebidaMesaTres(){
 
 	$bebidasMesaTres = array();
 
-	$consultaPedidosPendientesBebidasMesa3 = "select b.nombre_bebida, pb.cantidad_bebida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__bebida pb on pb.pedido_idPedido=p.idPedido inner join bebida b on pb.Bebida_idBebida = b.idBebida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 5 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
+	$consultaPedidosPendientesBebidasMesa3 = "select p.idPedido, b.nombre_bebida, pb.cantidad_bebida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__bebida pb on pb.pedido_idPedido=p.idPedido inner join bebida b on pb.Bebida_idBebida = b.idBebida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 5 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
 
 	$pedidoBebidaM3 = DB::select($consultaPedidosPendientesBebidasMesa3);
 
 	foreach ($pedidoBebidaM3 as $pbm3) {
 				
+		$idPedido = $pbm3->idPedido;
 		$bebida = $pbm3->nombre_bebida;
 		$cantidad = $pbm3->cantidad_bebida;
 
-		$bebidasMesaTres[] = array('nombre_bebida' => $bebida, 'cantidad_bebida' => $cantidad);  
+		$bebidasMesaTres[] = array('idPedido' => $idPedido, 'nombre_bebida' => $bebida, 'cantidad_bebida' => $cantidad);  
 
 	}
 	return $bebidasMesaTres;
@@ -148,16 +154,17 @@ public function generarPedidoComidaMesaCuatro(){
 
 		$comidasMesaCuatro = array();
 
-		$consultaPedidosPendientesComidasMesa4 = "select c.nombre_comida, pc.cantidad_comida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__comida pc on pc.pedido_idPedido=p.idPedido inner join comida c on pc.comida_idComida = c.idComida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 6 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
+		$consultaPedidosPendientesComidasMesa4 = "select p.idPedido, c.nombre_comida, pc.cantidad_comida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__comida pc on pc.pedido_idPedido=p.idPedido inner join comida c on pc.comida_idComida = c.idComida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 6 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
 		
 		$pedidoComidaM4 = DB::select($consultaPedidosPendientesComidasMesa4);
 
 		foreach ($pedidoComidaM4 as $pcm4) {
 				
+			$idPedido = $pcm4->idPedido;
 			$comida = $pcm4->nombre_comida;
 			$cantidad = $pcm4->cantidad_comida;
 
-			$comidasMesaCuatro[] = array('nombre_comida' => $comida, 'cantidad_comida' => $cantidad);  
+			$comidasMesaCuatro[] = array('idPedido' => $idPedido, 'nombre_comida' => $comida, 'cantidad_comida' => $cantidad);  
 
 		}
 		return $comidasMesaCuatro;
@@ -168,16 +175,17 @@ public function generarPedidoBebidaMesaCuatro(){
 
 	$bebidasMesaCuatro = array();
 
-	$consultaPedidosPendientesBebidasMesa4 = "select b.nombre_bebida, pb.cantidad_bebida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__bebida pb on pb.pedido_idPedido=p.idPedido inner join bebida b on pb.Bebida_idBebida = b.idBebida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 6 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
+	$consultaPedidosPendientesBebidasMesa4 = "select p.idPedido, b.nombre_bebida, pb.cantidad_bebida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__bebida pb on pb.pedido_idPedido=p.idPedido inner join bebida b on pb.Bebida_idBebida = b.idBebida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 6 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
 
 	$pedidoBebidaM4 = DB::select($consultaPedidosPendientesBebidasMesa4);
 
 	foreach ($pedidoBebidaM4 as $pbm4) {
 				
+		$idPedido = $pbm4->idPedido;
 		$bebida = $pbm4->nombre_bebida;
 		$cantidad = $pbm4->cantidad_bebida;
 
-		$bebidasMesaCuatro[] = array('nombre_bebida' => $bebida, 'cantidad_bebida' => $cantidad);  
+		$bebidasMesaCuatro[] = array('idPedido' => $idPedido, 'nombre_bebida' => $bebida, 'cantidad_bebida' => $cantidad);  
 
 	}
 	return $bebidasMesaCuatro;
@@ -189,16 +197,17 @@ public function generarPedidoComidaMesaCinco(){
 
 		$comidasMesaCinco = array();
 
-		$consultaPedidosPendientesComidasMesa5 = "select c.nombre_comida, pc.cantidad_comida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__comida pc on pc.pedido_idPedido=p.idPedido inner join comida c on pc.comida_idComida = c.idComida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 7 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
+		$consultaPedidosPendientesComidasMesa5 = "select p.idPedido, c.nombre_comida, pc.cantidad_comida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__comida pc on pc.pedido_idPedido=p.idPedido inner join comida c on pc.comida_idComida = c.idComida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 7 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
 		
 		$pedidoComidaM5 = DB::select($consultaPedidosPendientesComidasMesa5);
 
 		foreach ($pedidoComidaM5 as $pcm5) {
 				
+			$idPedido = $pcm5->idPedido;
 			$comida = $pcm5->nombre_comida;
 			$cantidad = $pcm5->cantidad_comida;
 
-			$comidasMesaCinco[] = array('nombre_comida' => $comida, 'cantidad_comida' => $cantidad);  
+			$comidasMesaCinco[] = array('idPedido' => $idPedido, 'nombre_comida' => $comida, 'cantidad_comida' => $cantidad);  
 
 		}
 		return $comidasMesaCinco;
@@ -209,16 +218,17 @@ public function generarPedidoBebidaMesaCinco(){
 
 	$bebidasMesaCinco = array();
 
-	$consultaPedidosPendientesBebidasMesa5 = "select b.nombre_bebida, pb.cantidad_bebida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__bebida pb on pb.pedido_idPedido=p.idPedido inner join bebida b on pb.Bebida_idBebida = b.idBebida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 7 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
+	$consultaPedidosPendientesBebidasMesa5 = "select p.idPedido, b.nombre_bebida, pb.cantidad_bebida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__bebida pb on pb.pedido_idPedido=p.idPedido inner join bebida b on pb.Bebida_idBebida = b.idBebida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 7 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
 
 	$pedidoBebidaM5 = DB::select($consultaPedidosPendientesBebidasMesa5);
 
 	foreach ($pedidoBebidaM5 as $pbm5) {
 				
+		$idPedido = $pbm5->idPedido;
 		$bebida = $pbm5->nombre_bebida;
 		$cantidad = $pbm5->cantidad_bebida;
 
-		$bebidasMesaCinco[] = array('nombre_bebida' => $bebida, 'cantidad_bebida' => $cantidad);  
+		$bebidasMesaCinco[] = array('idPedido' => $idPedido, 'nombre_bebida' => $bebida, 'cantidad_bebida' => $cantidad);  
 
 	}
 	return $bebidasMesaCinco;
@@ -230,16 +240,17 @@ public function generarPedidoComidaMesaSeis(){
 
 		$comidasMesaSeis = array();
 
-		$consultaPedidosPendientesComidasMesa6 = "select c.nombre_comida, pc.cantidad_comida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__comida pc on pc.pedido_idPedido=p.idPedido inner join comida c on pc.comida_idComida = c.idComida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 8 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
+		$consultaPedidosPendientesComidasMesa6 = "select p.idPedido, c.nombre_comida, pc.cantidad_comida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__comida pc on pc.pedido_idPedido=p.idPedido inner join comida c on pc.comida_idComida = c.idComida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 8 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
 		
 		$pedidoComidaM6 = DB::select($consultaPedidosPendientesComidasMesa6);
 
 		foreach ($pedidoComidaM6 as $pcm6) {
 				
+			$idPedido = $pcm6->idPedido;
 			$comida = $pcm6->nombre_comida;
 			$cantidad = $pcm6->cantidad_comida;
 
-			$comidasMesaSeis[] = array('nombre_comida' => $comida, 'cantidad_comida' => $cantidad);  
+			$comidasMesaSeis[] = array('idPedido' => $idPedido, 'nombre_comida' => $comida, 'cantidad_comida' => $cantidad);  
 
 		}
 		return $comidasMesaSeis;
@@ -250,16 +261,17 @@ public function generarPedidoBebidaMesaSeis(){
 
 	$bebidasMesaSeis = array();
 
-	$consultaPedidosPendientesBebidasMesa6 = "select b.nombre_bebida, pb.cantidad_bebida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__bebida pb on pb.pedido_idPedido=p.idPedido inner join bebida b on pb.Bebida_idBebida = b.idBebida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 8 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
+	$consultaPedidosPendientesBebidasMesa6 = "select p.idPedido, b.nombre_bebida, pb.cantidad_bebida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__bebida pb on pb.pedido_idPedido=p.idPedido inner join bebida b on pb.Bebida_idBebida = b.idBebida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 8 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
 
 	$pedidoBebidaM6 = DB::select($consultaPedidosPendientesBebidasMesa6);
 
 	foreach ($pedidoBebidaM6 as $pbm6) {
 				
+		$idPedido = $pbm6->idPedido;
 		$bebida = $pbm6->nombre_bebida;
 		$cantidad = $pbm6->cantidad_bebida;
 
-		$bebidasMesaSeis[] = array('nombre_bebida' => $bebida, 'cantidad_bebida' => $cantidad);  
+		$bebidasMesaSeis[] = array('idPedido' => $idPedido, 'nombre_bebida' => $bebida, 'cantidad_bebida' => $cantidad);  
 
 	}
 	return $bebidasMesaSeis;
@@ -271,16 +283,17 @@ public function generarPedidoComidaMesaSiete(){
 
 		$comidasMesaSiete = array();
 
-		$consultaPedidosPendientesComidasMesa7 = "select c.nombre_comida, pc.cantidad_comida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__comida pc on pc.pedido_idPedido=p.idPedido inner join comida c on pc.comida_idComida = c.idComida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 9 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
+		$consultaPedidosPendientesComidasMesa7 = "select p.idPedido, c.nombre_comida, pc.cantidad_comida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__comida pc on pc.pedido_idPedido=p.idPedido inner join comida c on pc.comida_idComida = c.idComida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 9 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
 		
 		$pedidoComidaM7 = DB::select($consultaPedidosPendientesComidasMesa7);
 
 		foreach ($pedidoComidaM7 as $pcm7) {
 				
+			$idPedido = $pcm7->idPedido;
 			$comida = $pcm7->nombre_comida;
 			$cantidad = $pcm7->cantidad_comida;
 
-			$comidasMesaSiete[] = array('nombre_comida' => $comida, 'cantidad_comida' => $cantidad);  
+			$comidasMesaSiete[] = array('idPedido' => $idPedido, 'nombre_comida' => $comida, 'cantidad_comida' => $cantidad);  
 
 		}
 		return $comidasMesaSiete;
@@ -291,16 +304,17 @@ public function generarPedidoBebidaMesaSiete(){
 
 	$bebidasMesaSiete = array();
 
-	$consultaPedidosPendientesBebidasMesa7 = "select b.nombre_bebida, pb.cantidad_bebida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__bebida pb on pb.pedido_idPedido=p.idPedido inner join bebida b on pb.Bebida_idBebida = b.idBebida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 9 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
+	$consultaPedidosPendientesBebidasMesa7 = "select p.idPedido, b.nombre_bebida, pb.cantidad_bebida from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join pedido__bebida pb on pb.pedido_idPedido=p.idPedido inner join bebida b on pb.Bebida_idBebida = b.idBebida inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = 9 and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
 
 	$pedidoBebidaM7 = DB::select($consultaPedidosPendientesBebidasMesa7);
 
 	foreach ($pedidoBebidaM7 as $pbm7) {
 				
+		$idPedido = $pbm7->idPedido;
 		$bebida = $pbm7->nombre_bebida;
 		$cantidad = $pbm7->cantidad_bebida;
 
-		$bebidasMesaSiete[] = array('nombre_bebida' => $bebida, 'cantidad_bebida' => $cantidad);  
+		$bebidasMesaSiete[] = array('idPedido' => $idPedido, 'nombre_bebida' => $bebida, 'cantidad_bebida' => $cantidad);  
 
 	}
 	return $bebidasMesaSiete;
@@ -322,6 +336,77 @@ public function generarPedidoBebidaMesaSiete(){
 		$ingrediente = Ingrediente::find($idIngrediente);
 		$ingrediente -> fill($request->all());
 		$ingrediente -> save();
+
+		return Redirect::to('inicioAdministracion/retornarIngredientes');
+
+	}
+
+	public function terminarPedido($idPedido){
+
+		if ($idPedido == 1) {
+			$pedido=self::generarPedidoComidaMesaUno();
+			$idPedidoM1 = $pedido[0];
+			$idPedidoM = $idPedidoM1['idPedido'];
+			$pedidoTerminar = Pedido::find($idPedidoM);
+			$pedidoTerminar->estado_pedido = 'entregado';
+			$pedidoTerminar -> save();
+		}
+
+		elseif ($idPedido == 2) {
+			$pedido=self::generarPedidoComidaMesaDos();
+			$idPedidoM1 = $pedido[0];
+			$idPedidoM = $idPedidoM1['idPedido'];
+			$pedidoTerminar = Pedido::find($idPedidoM);
+			$pedidoTerminar->estado_pedido = 'entregado';
+			$pedidoTerminar -> save();
+		}
+
+		elseif ($idPedido == 3) {
+			$pedido=self::generarPedidoComidaMesaTres();
+			$idPedidoM1 = $pedido[0];
+			$idPedidoM = $idPedidoM1['idPedido'];
+			$pedidoTerminar = Pedido::find($idPedidoM);
+			$pedidoTerminar->estado_pedido = 'entregado';
+			$pedidoTerminar -> save();
+		}
+
+		elseif ($idPedido == 4) {
+			$pedido=self::generarPedidoComidaMesaCuatro();
+			$idPedidoM1 = $pedido[0];
+			$idPedidoM = $idPedidoM1['idPedido'];
+			$pedidoTerminar = Pedido::find($idPedidoM);
+			$pedidoTerminar->estado_pedido = 'entregado';
+			$pedidoTerminar -> save();
+		}
+
+		elseif ($idPedido == 5) {
+			$pedido=self::generarPedidoComidaMesaCinco();
+			$idPedidoM1 = $pedido[0];
+			$idPedidoM = $idPedidoM1['idPedido'];
+			$pedidoTerminar = Pedido::find($idPedidoM);
+			$pedidoTerminar->estado_pedido = 'entregado';
+			$pedidoTerminar -> save();
+		}
+
+		elseif ($idPedido == 6) {
+			$pedido=self::generarPedidoComidaMesaSeis();
+			$idPedidoM1 = $pedido[0];
+			$idPedidoM = $idPedidoM1['idPedido'];
+			$pedidoTerminar = Pedido::find($idPedidoM);
+			$pedidoTerminar->estado_pedido = 'entregado';
+			$pedidoTerminar -> save();
+		}
+
+		elseif ($idPedido == 7) {
+			$pedido=self::generarPedidoComidaMesaSiete();
+			$idPedidoM1 = $pedido[0];
+			$idPedidoM = $idPedidoM1['idPedido'];
+			$pedidoTerminar = Pedido::find($idPedidoM);
+			$pedidoTerminar->estado_pedido = 'entregado';
+			$pedidoTerminar -> save();
+		}else{
+			return Redirect::to('inicioAdministracion/retornarIngredientes');
+		}
 
 		return Redirect::to('inicioAdministracion/retornarIngredientes');
 
@@ -402,7 +487,7 @@ public function generarPedidoBebidaMesaSiete(){
 
 		foreach ($listadoFacturas as $factura) {
 			
-			if ($factura->created_at >= $fechaMenosUnDia) {
+			if ($factura->created_at > $fechaMenosUnDia) {
 				
 				$acumuladorValorFacturasDia = $acumuladorValorFacturasDia+($factura->valor_cuenta);
 			}
@@ -425,7 +510,7 @@ public function generarPedidoBebidaMesaSiete(){
 
 		foreach ($listadoPedidos as $pedido) {
 			
-			if ($pedido->created_at >= $fechaMenosUnDia) {
+			if ($pedido->created_at > $fechaMenosUnDia) {
 				
 				$acumuladorPedidosDia = $acumuladorPedidosDia + 1;
 			}

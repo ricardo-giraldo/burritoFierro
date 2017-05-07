@@ -20,8 +20,16 @@ Route::resource('cierreSesion','ControladorInicioSesion@cerrarSesion');
 
 //Rutas de las pantallas del administrador
 Route::get('inicioAdministracion/retornarIngredientes','ControladorAdministracion@retornarIngredientes');
+
 Route::get('inicioAdministracion/editarIngrediente/{idIngrediente}','ControladorAdministracion@editarIngrediente');
+
 Route::put('inicioAdministracion/actualizarIngrediente/{idIngrediente}',['uses'=>'ControladorAdministracion@actualizarIngrediente','as'=>'inicioAdministracion.actualizarIngrediente']);
+
+Route::get('inicioAdministracion/terminarPedido/{idPedido}','ControladorAdministracion@terminarPedido');
+
+//['uses'=>'ControladorAdministracion@terminarPedido','as'=>'inicioAdministracion.terminarPedido']
+
+
 Route::get('inicioAdministracion/retornarPedidos','ControladorAdministracion@retornarPedidos');
 
 Route::post('inicioAdministracion/retornarIngredientes/generarReporte',['uses'=>'ControladorAdministracion@generarReporte', 'as'=>'inicioAdministracion.retornarIngredientes.generarReporte']);

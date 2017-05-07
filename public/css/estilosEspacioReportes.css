@@ -1,4 +1,4 @@
-#pantallaInventario {
+#pantallaReportes {
 
 	background:  #333;
 	color: #fff;
@@ -6,10 +6,10 @@
 	padding: 39px;
 	height: 700px;
 	margin-top: 50px;
-
+	
 }
 
-div#contenedorOpcionesInventario {
+div#contenedorReportes {
 
 	width: 600px;
 	margin-top: 100px;
