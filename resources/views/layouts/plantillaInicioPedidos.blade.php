@@ -7,6 +7,7 @@
 	
 	{!!Html::style('/css/fontello.css')!!}
 	{!!Html::style('/css/estilosInicioPedidos.css')!!}
+	
 
 </head>
 
