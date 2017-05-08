@@ -7,19 +7,17 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class MeseroPuedeCrearPedidoTest extends TestCase
 {
     /**
-     * A basic test example.
+     * Prueba que un mesero pueda crear un pedido de tacos fierros
      *
      * @return void
      */
     public function testMeseroPuedeCrearPedido()
     {
         
-    	$this->visit('inicioPedidos/areaPedidos/crearPedido')
-    		->type('Post','tacoFierro')
-    		->press('Terminar pedido')
-    		->seePageIs('inicioPedidos')
-    		->click()
-    		->see('');
-
+    	$this->visit('inicioPedidos/areaPedidos')
+    	 ->select('2', 'mesa')
+         ->select('2', 'tacoFierro')
+         ->click('Terminar pedido')
+         ->seePageIs('inicioPedidos/areaPedidos');
     }
 }

@@ -7,48 +7,14 @@
 	{!!Html::style('/css/fontello.css')!!}
 	{!!Html::style('/css/stylesheet.css')!!}
 
-	<script type="text/javascript">
-		
-		function clicPantallaPedidos(){
 
-			document.getElementById('pantallaPedidos').style.display = 'block';
-			document.getElementById('pantallaInventario').style.display = 'none';
-			document.getElementById('pantallaReportes').style.display = 'none';
-			document.getElementById('pantallaNotificaciones').style.display = 'none';
-
-		}
-
-		function clicPantallaInventario(){
-
-			document.getElementById('pantallaPedidos').style.display = 'none';
-			document.getElementById('pantallaInventario').style.display = 'block';
-			document.getElementById('pantallaReportes').style.display = 'none';
-			document.getElementById('pantallaNotificaciones').style.display = 'none';
-
-		}
-
-		function clicPantallaReportes(){
-
-			document.getElementById('pantallaPedidos').style.display = 'none';
-			document.getElementById('pantallaInventario').style.display = 'none';
-			document.getElementById('pantallaReportes').style.display = 'block';
-			document.getElementById('pantallaNotificaciones').style.display = 'none';
-
-		}
-
-		function clicPantallaNotificaciones(){
-
-			document.getElementById('pantallaPedidos').style.display = 'none';
-			document.getElementById('pantallaInventario').style.display = 'none';
-			document.getElementById('pantallaReportes').style.display = 'none';
-			document.getElementById('pantallaNotificaciones').style.display = 'block';
-
-		}
-
-	</script>
 
 	<style>
-		@font-face {font-family:"JI Chimichanga";src:url("JI_Chimichanga.eot?") format("eot"),url("JI_Chimichanga.woff") format("woff"),url("JI_Chimichanga.ttf") format("truetype"),url("JI_Chimichanga.svg#JIChimichanga") format("svg");font-weight:normal;font-style:normal;}
+		@font-face {font-family:"JI Chimichanga";src:url("/font/JI_Chimichanga.eot?") format("eot"),url("/font/JI_Chimichanga.woff") format("woff"),url("/font/JI_Chimichanga.ttf") format("truetype"),url("/font/JI_Chimichanga.svg#JIChimichanga") format("svg");font-weight:normal;font-style:normal;}
+
+		h1, h2, h3{
+			font-family: "JI Chimichanga", Arial;
+		}
 		table {
 		    border-collapse: collapse;
 		    width: 100%;
@@ -77,10 +43,10 @@
 			<label class="icon-menu" for="menu-bar"></label>
 			<!--Menú de opciones disponibles para el administrador-->
 			<nav class="menu">
-				<a href="#" onclick="clicPantallaPedidos()">Pedidos</a>
-				<a href="#" onclick="clicPantallaInventario()">Inventario</a>
-				<a href="#" onclick="clicPantallaReportes()">Reportes</a>
-				<a href="#" onclick="clicPantallaNotificaciones()">Notificaciones</a>
+				<a href="#pantallaPedidosS" onclick="clicPantallaPedidos()">Pedidos</a>
+				<a href="#pantallaInventarioS" onclick="clicPantallaInventario()">Inventario</a>
+				<a href="#pantallaReportesS" onclick="clicPantallaReportes()">Reportes</a>
+				<a href="#pantallaNotificacionesS" onclick="clicPantallaNotificaciones()">Notificaciones</a>
 				<a href="/cierreSesion" onclick="clicSalir()">Salir</a>
 			</nav>
 		</div>
@@ -89,7 +55,7 @@
 	<main>
 
 		<!--Sección que contiene la pantalla que muestra los pedidos-->	
-		<section class="pantallaPedidos">
+		<section id="pantallaPedidosS", class="pantallaPedidos">
 			
 			<div id="general"> 
 				<div id="mesa1">
@@ -130,7 +96,22 @@
 							@endforeach
 						</tbody>
 					</table>
-					<a href="terminarPedido/{{1}}" class="btn btn-warning">Terminar pedido</a>
+					
+					@if($pedidoComidaM1 <> null || $pedidoBebidaM1 <> null)
+						<table style="text-align: left;">
+						<thead>
+							<th>Valor de la factura:</th>
+						</thead>	
+							<tbody>
+								<tr>
+									<td>
+										{{$precioPedidoMesa1}}
+									</td>
+								</tr>
+							</tbody>			
+					</table>
+					<a href="terminarPedido/{{1}}" class="btn btn-warning", style="color: white;">Terminar pedido</a>
+					@endif
 				</div>
 				<div id="mesa2">
 					<label id="mesa">Mesa 2</label>
@@ -170,7 +151,21 @@
 							@endforeach
 						</tbody>
 					</table>
-					<a href="terminarPedido/{{2}}" class="btn btn-warning">Terminar pedido</a>
+					@if($pedidoComidaM2 <> null || $pedidoBebidaM2 <> null)
+					<table style="text-align: left;">
+						<thead>
+							<th>Valor de la factura:</th>
+						</thead>	
+							<tbody>
+								<tr>
+									<td>
+										{{$precioPedidoMesa2}}
+									</td>
+								</tr>
+							</tbody>			
+					</table>
+					<a href="terminarPedido/{{2}}" class="btn btn-warning", style="color: white;">Terminar pedido</a>
+					@endif
 				</div>
 				<div id="mesa3">
 					<label id="mesa">Mesa 3</label>
@@ -210,7 +205,21 @@
 							@endforeach
 						</tbody>
 					</table>
-					<a href="terminarPedido/{{3}}" class="btn btn-warning">Terminar pedido</a>
+					@if($pedidoComidaM3 <> null || $pedidoBebidaM3 <> null)
+					<table style="text-align: left;">
+						<thead>
+							<th>Valor de la factura:</th>
+						</thead>	
+							<tbody>
+								<tr>
+									<td>
+										{{$precioPedidoMesa3}}
+									</td>
+								</tr>
+							</tbody>			
+					</table>
+					<a href="terminarPedido/{{3}}" class="btn btn-warning", style="color: white;">Terminar pedido</a>
+					@endif
 				</div>
 				<div id="mesa4">
 					<label id="mesa">Mesa 4</label>
@@ -250,7 +259,21 @@
 							@endforeach
 						</tbody>
 					</table>
-					<a href="terminarPedido/{{4}}" class="btn btn-warning">Terminar pedido</a>
+					@if($pedidoComidaM4 <> null || $pedidoBebidaM4 <> null)
+					<table style="text-align: left;">
+						<thead>
+							<th>Valor de la factura:</th>
+						</thead>	
+							<tbody>
+								<tr>
+									<td>
+										{{$precioPedidoMesa4}}
+									</td>
+								</tr>
+							</tbody>			
+					</table>
+					<a href="terminarPedido/{{4}}" class="btn btn-warning", style="color: white;">Terminar pedido</a>
+					@endif
 				</div>
 				<div id="mesa5">
 					<label id="mesa">Mesa 5</label>
@@ -290,7 +313,21 @@
 							@endforeach
 						</tbody>
 					</table>
-					<a href="terminarPedido/{{5}}" class="btn btn-warning">Terminar pedido</a>
+					@if($pedidoComidaM5 <> null || $pedidoBebidaM5 <> null)
+					<table style="text-align: left;">
+						<thead>
+							<th>Valor de la factura:</th>
+						</thead>	
+							<tbody>
+								<tr>
+									<td>
+										{{$precioPedidoMesa5}}
+									</td>
+								</tr>
+							</tbody>			
+					</table>
+						<a href="terminarPedido/{{5}}" class="btn btn-warning", style="color: white;">Terminar pedido</a>
+					@endif
 				</div>
 				<div id="mesa6">
 					<label id="mesa">Mesa 6</label>
@@ -330,7 +367,21 @@
 							@endforeach
 						</tbody>
 					</table>
-					<a href="terminarPedido/{{6}}" class="btn btn-warning">Terminar pedido</a>
+					@if($pedidoComidaM6 <> null || $pedidoBebidaM6 <> null)
+						<table style="text-align: left;">
+							<thead>
+								<th>Valor de la factura:</th>
+							</thead>	
+								<tbody>
+									<tr>
+										<td>
+											{{$precioPedidoMesa6}}
+										</td>
+									</tr>
+								</tbody>			
+						</table>
+						<a href="terminarPedido/{{6}}" class="btn btn-warning", style="color: white;">Terminar pedido</a>
+					@endif
 				</div>
 				<div id="mesa7">
 						<label id="mesa">Barra</label>
@@ -371,7 +422,21 @@
 								@endforeach
 							</tbody>
 						</table>
-						<a href="terminarPedido/{{7}}" class="btn btn-warning">Terminar pedido</a>
+						@if($pedidoComidaM7 <> null || $pedidoBebidaM7 <> null)
+							<table style="text-align: left;">
+							<thead>
+								<th>Valor de la factura:</th>
+							</thead>	
+								<tbody>
+									<tr>
+										<td>
+											{{$precioPedidoMesa7}}
+										</td>
+									</tr>
+								</tbody>			
+							</table>
+							<a href="terminarPedido/{{7}}" class="btn btn-warning", style="color: white;">Terminar pedido</a>
+						@endif
 				</div>
 			</div>
 		</section>
@@ -379,12 +444,12 @@
 		
 
 		<!--Sección que contiene la pantalla de manejo de inventario-->
-		<center><section class="pantallaInventario">
+		<center><section id="pantallaInventarioS", class="pantallaInventario">
 			
 			<div id="contenedorOpcionesInventario">
 				</br>
 				</br>
-				<center><h2>Espacio para el seguimiento y gesti&oacute;n de inventario</h2></center>
+				<center><h1>Espacio para el seguimiento y gesti&oacute;n de inventario</h1></center>
 				</br>
 
 				<table class="tablaIngredientes">
@@ -412,12 +477,13 @@
 
 		</section></center>
 
-		<section class="pantallaReportes">
+
+		<center><section id="pantallaReportesS", class="pantallaReportes">
 
 		<div id="contenedorReportes">
 			</br>
 			</br>
-			<center><h2>Espacio para la informaci&oacute;n de los Reportes</h2></center>
+			<center><h1>Espacio para la informaci&oacute;n de los Reportes</h1></center>
 
 				{!!Form::open(['route'=>'inicioAdministracion.retornarIngredientes.generarReporte', 'method'=>'POST'])!!}
 					
@@ -441,9 +507,31 @@
 			</div>	
 		</section>
 
-		<section class="pantallaNotificaciones">
-			
-		</section>
+		<section id="pantallaNotificacionesS", class="pantallaNotificaciones">
+			<div id="contenedorNotificaciones">
+			</br>
+				</br>
+				<center><h2>Espacio para ver notificaciones</h2></center>
+
+				{!!Form::open(['route'=>'inicioAdministracion.retornarIngredientes.verNotificaciones', 'method'=>'POST'])!!}
+					
+					<table class="tablaNotificaciones">
+						<thead>
+							<th>Notificaciones</th>
+						</thead>
+						<tbody>
+							@foreach($listadoNotificaciones as $notificacion)
+								<tr>
+									<td>{{$notificacion}}</td>
+								</tr>
+							@endforeach
+						</tbody>	
+					</table>
+					{!!Form::submit('Actualizar Notificaciones')!!}
+					
+				{!!Form::close()!!}	
+				</div>		
+		</section></center>
 
 	</main>
 

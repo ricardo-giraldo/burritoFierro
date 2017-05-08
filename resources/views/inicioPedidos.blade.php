@@ -1,17 +1,23 @@
 @extends('layouts.plantillaInicioPedidos')
 
 @section('opciones')
-	<h3>Por favor seleccione una mesa</h3>
-	<div class="contenedor">
+	<section id="opciones">
+		<h3>Por favor seleccione una mesa</h3>
+		<div class="contenedor">
 
-	{!!Form::open(['route'=>'inicioPedidos.areaPedidos.crearPedido', 'method'=>'POST'])!!}
+		{!!Form::open(['route'=>'inicioPedidos.areaPedidos.crearPedido', 'method'=>'POST'])!!}
 
-		{!!Form::select('mesa', ['3' => 'Mesa número 1', '4' => 'Mesa número 2', '5' => 'Mesa número 3', '6' => 'Mesa número 4', '7' => 'Mesa número 5', '8' => 'Mesa número 6', '9' => 'Barra' ])!!}
-		</div>
+			{!!Form::select('mesa', ['3' => 'Mesa número 1', '4' => 'Mesa número 2', '5' => 'Mesa número 3', '6' => 'Mesa número 4', '7' => 'Mesa número 5', '8' => 'Mesa número 6', '9' => 'Barra' ])!!}
+			</div>
+	</section>
+	
 @endsection
 
 
 @section('comidas')
+	<section id="comidas">
+		
+	
 			<h3>Seleccione las Comidas para realizar el pedido</h3>
 			<div class="contenedor">
 				<div id="opciones">
@@ -100,13 +106,15 @@
 					{!!Form::select('nachosPastor', ['0' => '0','1' => '1', '2' => '2', '3' => '3', '4' => '4', '5' => '5', '6' => '6', '7' => '7', '8' => '8', '9' => '9' ])!!}
 				</div>
 			</div>
+			</section>
 @endsection
 
 
 @section('bebidas')
-
+<section id="pedidosBebidas">
 		<h3>Seleccione las Bebidas para realizar el pedido</h3>
 			<div class="contenedor">
+			
 				<div id="opciones">
 					<img src="/imagenesBebidas/cervezaCorona.jpg">
 					<h4>Corona</h4>
@@ -193,14 +201,14 @@
 					{!!Form::select('horchata', ['0' => '0','1' => '1', '2' => '2', '3' => '3', '4' => '4', '5' => '5', '6' => '6', '7' => '7', '8' => '8', '9' => '9' ])!!}
 				</div>
 			</div>
-
+</section>
 @endsection
 
 @section('terminarPedido')
-
+	<section id="terminarPedido">
 		<h3>Si ya termin&oacute; de tomar el pedido, por favor m&aacute;rquelo como Realizado</h3>
 		{!!Form::submit('Terminar pedido')!!}
 
 	{!!Form::close()!!}
-
+</section>
 @endsection

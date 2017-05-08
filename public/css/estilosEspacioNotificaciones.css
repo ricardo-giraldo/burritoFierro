@@ -1,0 +1,17 @@
+#pantallaNotificaciones{
+
+	background:  #333;
+	color: #fff;
+	text-align: center;
+	padding: 39px;
+	height: 700px;
+	margin-top: 50px;
+	
+}
+
+div#contenedorNotificaciones {
+
+	width: 600px;
+	margin-top: 100px;
+
+}

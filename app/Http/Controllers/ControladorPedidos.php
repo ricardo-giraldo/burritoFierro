@@ -12,7 +12,10 @@ use App\Factura;
 use App\Pedido__Comida;
 use App\Pedido__Bebida;
 use App\Pedido__Adicional;
+use App\Ingrediente;
+use App\Ingrediente_Comida;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ControladorPedidos extends Controller
 {
@@ -21,24 +24,61 @@ class ControladorPedidos extends Controller
 
 		$fecha = Carbon::now();
 		$hora = $fecha->toTimeString();
-	  
 
-		Pedido::create([
+	  $consultaPedidosPendientes = "select p.idPedido, f.idFactura, f.valor_cuenta from mesa mesa inner join pedido p on mesa.idMesa=p.mesa_idMesa inner join factura f on f.pedido_idPedido=p.idPedido where mesa.idMesa = '".$request->mesa."' and p.estado_pedido = 'pendiente' order by mesa.numero_mesa, p.idPedido";
+		
+		$pedidoPendiente = DB::select($consultaPedidosPendientes);
+
+		foreach ($pedidoPendiente as $pedido) {
+					
+			$idPedido = $pedido->idPedido;
+			$idFactura = $pedido->idFactura;
+			$valor_cuenta = $pedido->valor_cuenta;
+
+			$pedidoPendiente1[] = array('idPedido' => $idPedido, 'idFactura' => $idFactura, 'valor_cuenta' => $valor_cuenta);  
+
+		}
+
+		if ($pedidoPendiente == null) {
+			
+			Pedido::create([
 			'fecha'=> $fecha,
 			'hora'=>$hora,
 			'estado_pedido'=>'pendiente',
 			'Mesa_idMesa'=>$request->mesa,
 			'Mesero_idMesero'=>'2',
 			'Restaurante_idRestaurante'=>'1'
-		]);
+			]);
+
+			//Variable para acumular el valor de la factura
+			$acumuladoValorFactura = 0;
+
+		}else{
+
+			//Variable para acumular el valor de la factura
+			$pedidoM = $pedidoPendiente1[0];
+			$acumuladoValorFactura = $pedidoM['valor_cuenta'];
+			 
+		}
+
+
+		
 
 		//Se obtiene el último pedido registrado para poder registrar las comidas y bebidas en el pedido registrado inmediatamente anterior.
-		$pedido = Pedido::all();
-		$ultimoPedido = $pedido->last();
-		$idPedido = $ultimoPedido->idPedido;
+		if ($pedidoPendiente == null) {
 
-		//Variable para acumular el valor de la factura
-		$acumuladoValorFactura = 0;
+			$pedido = Pedido::all();
+			$ultimoPedido = $pedido->last();
+			$idPedido = $ultimoPedido->idPedido;
+
+		}else{
+			
+			$pedidoM = $pedidoPendiente1[0];
+			$idPedido= $pedidoM['idPedido'];
+			 
+		}
+
+		
 
 		//Se verifica si dentro del pedido enviado por el mesero, hay comidas para crear la tabla intermedia entre el pedido y las comidas
 	 	$acumuladoValorFactura = self::crearPedidosComidas($request, $idPedido, $acumuladoValorFactura);
@@ -47,7 +87,16 @@ class ControladorPedidos extends Controller
      	$acumuladoValorFactura = self::crearPedidosBebidas($request, $idPedido, $acumuladoValorFactura);
 
 		//Cuando se termine de verificar el contenido del pedido, se crea la factura para el pedido
-		self::crearFactura($idPedido, $acumuladoValorFactura);
+		if ($pedidoPendiente == null) {
+			self::crearFactura($idPedido, $acumuladoValorFactura);
+		}else{
+
+			$pedidoM = $pedidoPendiente1[0];
+			$pedidoMesa = $pedidoM['idFactura'];
+
+			self::modificarFactura($idPedido, $acumuladoValorFactura, $pedidoMesa);
+		}
+		
 
 		//Cuando se termine de verificar el contenido del pedido y crear la facura, se redirecciona a la misma página
 		return view('inicioPedidos');
@@ -128,9 +177,24 @@ class ControladorPedidos extends Controller
 
 	}
 
+	/*Método para crear una factura*/
+	public function modificarFactura($idPedidoP, $acumuladoValorFacturaP, $idFacturaP){
+
+		$idPedido = $idPedidoP;
+		$acumuladoValorFactura = $acumuladoValorFacturaP;
+		$idFactura = $idFacturaP;
+
+		$factura = Factura::find($idFactura);
+		$factura->valor_cuenta = $acumuladoValorFactura;
+		$factura -> save();
+
+	}
+
 /*Si en la pantalla pedidos, se selecciona alguna cantidad de tacos fierros, se crea el registro del pedido en la tabla intermedia entre pedido y comida*/
 	public function crearPedidoTacoFierro($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 
 		if ($request->tacoFierro > $cero) {
@@ -143,7 +207,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('10');
 
+			$listaIngredienteTacoFierro = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->tacoFierro);
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para el tacoFierro, se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteTacoFierro as $listaIngredienteTacoFierro) {
+
+				if ($listaIngredienteTacoFierro->Comida_idComida == '10') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->tacoFierro * $listaIngredienteTacoFierro->cantidad_ingrediente);
+
+					$ingredienteTacoFierro = Ingrediente::find($listaIngredienteTacoFierro->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteTacoFierro->cantidad - $acumuladorIngrediente);
+
+					$ingredienteTacoFierro->cantidad = $totalIngrediente;	
+
+					$ingredienteTacoFierro -> save();
+				}
+
+			$totalIngrediente = 0;	
+
+			$acumuladorIngrediente = 0;	
+			}
+			
+			
 
 		}
 
@@ -154,6 +242,8 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de tacos Morelo, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoTacoMorelo($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 
 		if ($request->tacoMorelo > $cero) {
@@ -166,7 +256,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('11');
 
+			$listaIngredienteTacoMorelo = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->tacoMorelo);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para el tacoMorelo, se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteTacoMorelo as $listaIngredienteTacoMorelo) {
+
+				if ($listaIngredienteTacoMorelo->Comida_idComida == '11') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->tacoMorelo* $listaIngredienteTacoMorelo->cantidad_ingrediente);
+
+					$ingredienteTacoMorelo = Ingrediente::find($listaIngredienteTacoMorelo->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteTacoMorelo->cantidad - $acumuladorIngrediente);
+
+					$ingredienteTacoMorelo->cantidad = $totalIngrediente;
+
+					$ingredienteTacoMorelo -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 
 		}
 
@@ -176,6 +290,8 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de tacos pastor, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoTacoPastor($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 		
 		if ($request->tacoPastor > $cero) {
@@ -188,7 +304,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('12');
 
+			$listaIngredienteTacoPastor = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->tacoPastor);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para el tacoPastor, se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteTacoPastor as $listaIngredienteTacoPastor) {
+
+				if ($listaIngredienteTacoPastor->Comida_idComida == '12') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->tacoPastor* $listaIngredienteTacoPastor->cantidad_ingrediente);
+
+					$ingredienteTacoPastor = Ingrediente::find($listaIngredienteTacoPastor->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteTacoPastor->cantidad - $acumuladorIngrediente);
+
+					$ingredienteTacoPastor->cantidad = $totalIngrediente;
+
+					$ingredienteTacoPastor -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 							
 		}
 
@@ -198,6 +338,8 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de quesadillas de arequipe, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoQuesadillaArequipe($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 
 		if ($request->quesadillaArequipe > $cero) {
@@ -210,7 +352,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('13');
 
+			$listaIngredienteQuesadillaArequipe = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->quesadillaArequipe);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para la quesadilla de arequipe, se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteQuesadillaArequipe as $listaIngredienteQuesadillaArequipe) {
+
+				if ($listaIngredienteQuesadillaArequipe->Comida_idComida == '13') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->quesadillaArequipe* $listaIngredienteQuesadillaArequipe->cantidad_ingrediente);
+
+					$ingredienteQuesadillaArequipe = Ingrediente::find($listaIngredienteQuesadillaArequipe->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteQuesadillaArequipe->cantidad - $acumuladorIngrediente);
+
+					$ingredienteQuesadillaArequipe->cantidad = $totalIngrediente;
+
+					$ingredienteQuesadillaArequipe -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 		}
 
 		return $acumuladoValorFactura;		
@@ -219,6 +385,8 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de quesadillas de champiñones, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoQuesadillaChampinon($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 
 		if ($request->quesadillaChampinon > $cero) {
@@ -231,7 +399,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('14');
 
+			$listaIngredienteQuesadillaChampinon = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->quesadillaChampinon);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para la quesadilla de champiñones, se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteQuesadillaChampinon as $listaIngredienteQuesadillaChampinon) {
+
+				if ($listaIngredienteQuesadillaChampinon->Comida_idComida == '14') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->quesadillaChampinon* $listaIngredienteQuesadillaChampinon->cantidad_ingrediente);
+
+					$ingredienteQuesadillaChampinon = Ingrediente::find($listaIngredienteQuesadillaChampinon->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteQuesadillaChampinon->cantidad - $acumuladorIngrediente);
+
+					$ingredienteQuesadillaChampinon->cantidad = $totalIngrediente;
+
+					$ingredienteQuesadillaChampinon -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 
 		}
 
@@ -241,6 +433,8 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de quesadillas de jamón, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoQuesadillaJamon($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 		
 		if ($request->quesadillaJamon > $cero) {
@@ -253,7 +447,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('15');
 
+			$listaIngredienteQuesadillaJamon = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->quesadillaJamon);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para la quesadilla de jamon, se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteQuesadillaJamon as $listaIngredienteQuesadillaJamon) {
+
+				if ($listaIngredienteQuesadillaJamon->Comida_idComida == '15') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->quesadillaJamon* $listaIngredienteQuesadillaJamon->cantidad_ingrediente);
+
+					$ingredienteQuesadillaJamon = Ingrediente::find($listaIngredienteQuesadillaJamon->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteQuesadillaJamon->cantidad - $acumuladorIngrediente);
+
+					$ingredienteQuesadillaJamon->cantidad = $totalIngrediente;
+
+					$ingredienteQuesadillaJamon -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 
 		}
 
@@ -263,6 +481,8 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de quesadilla de piña, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoQuesadillaPina($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 
 		if ($request->quesadillaPina > $cero) {
@@ -275,7 +495,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('16');
 
+			$listaIngredienteQuesadillaPina = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->quesadillaPina);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para la quesadilla de piña, se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteQuesadillaPina as $listaIngredienteQuesadillaPina) {
+
+				if ($listaIngredienteQuesadillaPina->Comida_idComida == '16') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->quesadillaPina* $listaIngredienteQuesadillaPina->cantidad_ingrediente);
+
+					$ingredienteQuesadillaPina = Ingrediente::find($listaIngredienteQuesadillaPina->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteQuesadillaPina->cantidad - $acumuladorIngrediente);
+
+					$ingredienteQuesadillaPina->cantidad = $totalIngrediente;
+
+					$ingredienteQuesadillaPina -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 
 		}
 
@@ -285,6 +529,8 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de quesadillas de queso, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoQuesadillaQueso($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 
 		if ($request->quesadillaQueso > $cero) {
@@ -297,7 +543,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('17');
 
+			$listaIngredienteQuesadillaQueso = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->quesadillaQueso);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para la quesadilla de queso, se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteQuesadillaQueso as $listaIngredienteQuesadillaQueso) {
+
+				if ($listaIngredienteQuesadillaQueso->Comida_idComida == '17') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->quesadillaQueso* $listaIngredienteQuesadillaQueso->cantidad_ingrediente);
+
+					$ingredienteQuesadillaQueso = Ingrediente::find($listaIngredienteQuesadillaQueso->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteQuesadillaQueso->cantidad - $acumuladorIngrediente);
+
+					$ingredienteQuesadillaQueso->cantidad = $totalIngrediente;
+
+					$ingredienteQuesadillaQueso -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 
 		}
 
@@ -307,6 +577,8 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de gringas chicharronas, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoGringaChicharrona($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 
 		if ($request->gringaChicharrona > $cero) {
@@ -319,7 +591,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('18');
 
+			$listaIngredienteGringaChicharrona = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->gringaChicharrona);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para la gringa chicharrona, se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteGringaChicharrona as $listaIngredienteGringaChicharrona) {
+
+				if ($listaIngredienteGringaChicharrona->Comida_idComida == '18') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->gringaChicharrona* $listaIngredienteGringaChicharrona->cantidad_ingrediente);
+
+					$ingredienteGringaChicharrona = Ingrediente::find($listaIngredienteGringaChicharrona->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteGringaChicharrona->cantidad - $acumuladorIngrediente);
+
+					$ingredienteGringaChicharrona->cantidad = $totalIngrediente;
+
+					$ingredienteGringaChicharrona -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 
 		}
 
@@ -329,6 +625,8 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de gringas, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoGringa($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 		
 		if ($request->gringa > $cero) {
@@ -341,7 +639,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('19');
 
+			$listaIngredienteGringa = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->gringa);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para la gringa, se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteGringa as $listaIngredienteGringa) {
+
+				if ($listaIngredienteGringa->Comida_idComida == '19') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->gringa * $listaIngredienteGringa->cantidad_ingrediente);
+
+					$ingredienteGringa = Ingrediente::find($listaIngredienteGringa->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteGringa->cantidad - $acumuladorIngrediente);
+
+					$ingredienteGringa->cantidad = $totalIngrediente;
+
+					$ingredienteGringa -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 
 		}
 
@@ -351,6 +673,8 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de burros albondigon, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoBurroAlbondigon($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 
 		if ($request->burroAlbondigon > $cero) {
@@ -363,7 +687,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('20');
 
+			$listaIngredienteBurroAlbondigon = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->burroAlbondigon);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para el burro albondigon, se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteBurroAlbondigon as $listaIngredienteBurroAlbondigon) {
+
+				if ($listaIngredienteBurroAlbondigon->Comida_idComida == '20') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->burroAlbondigon * $listaIngredienteBurroAlbondigon->cantidad_ingrediente);
+
+					$ingredienteBurroAlbondigon = Ingrediente::find($listaIngredienteBurroAlbondigon->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteBurroAlbondigon->cantidad - $acumuladorIngrediente);
+
+					$ingredienteBurroAlbondigon->cantidad = $totalIngrediente;
+
+					$ingredienteBurroAlbondigon -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 
 		}
 
@@ -373,6 +721,8 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de burros cuate, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoBurroCuate($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 		
 		if ($request->burroCuate > $cero) {
@@ -385,7 +735,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('21');
 
+			$listaIngredienteBurroCuate = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->burroCuate);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para el burro cuate se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteBurroCuate as $listaIngredienteBurroCuate) {
+
+				if ($listaIngredienteBurroCuate->Comida_idComida == '21') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->burroCuate * $listaIngredienteBurroCuate->cantidad_ingrediente);
+
+					$ingredienteBurroCuate = Ingrediente::find($listaIngredienteBurroCuate->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteBurroCuate->cantidad - $acumuladorIngrediente);
+
+					$ingredienteBurroCuate->cantidad = $totalIngrediente;
+
+					$ingredienteBurroCuate -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 
 		}
 
@@ -395,6 +769,8 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de burros festival, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoBurroFestival($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 		
 		if ($request->burroFestival > $cero) {
@@ -407,7 +783,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('22');
 
+			$listaIngredienteBurroFestival = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->burroFestival);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para el burro festival se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteBurroFestival as $listaIngredienteBurroFestival) {
+
+				if ($listaIngredienteBurroFestival->Comida_idComida == '22') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->burroFestival * $listaIngredienteBurroFestival->cantidad_ingrediente);
+
+					$ingredienteBurroFestival= Ingrediente::find($listaIngredienteBurroFestival->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteBurroFestival->cantidad - $acumuladorIngrediente);
+
+					$ingredienteBurroFestival->cantidad = $totalIngrediente;
+
+					$ingredienteBurroFestival -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 
 		}
 
@@ -417,6 +817,8 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de burros norteños, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoBurroNorteno($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 	
 		if ($request->burroNorteno > $cero) {
@@ -429,7 +831,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('23');
 
+			$listaIngredienteBurroNorteno = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->burroNorteno);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para el burro norteño, se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteBurroNorteno as $listaIngredienteBurroNorteno) {
+
+				if ($listaIngredienteBurroNorteno->Comida_idComida == '23') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->burroNorteno * $listaIngredienteBurroNorteno->cantidad_ingrediente);
+
+					$ingredienteBurroNorteno = Ingrediente::find($listaIngredienteBurroNorteno->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteBurroNorteno->cantidad - $acumuladorIngrediente);
+
+					$ingredienteBurroNorteno->cantidad = $totalIngrediente;
+
+					$ingredienteBurroNorteno -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 
 		}
 
@@ -439,6 +865,8 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de burros poblanos, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoBurroPoblano($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 		
 		if ($request->burroPoblano > $cero) {
@@ -451,7 +879,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('24');
 
+			$listaIngredienteBurroPoblano = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->burroPoblano);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para el burro poblano, se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteBurroPoblano as $listaIngredienteBurroPoblano) {
+
+				if ($listaIngredienteBurroPoblano->Comida_idComida == '24') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->burroPoblano * $listaIngredienteBurroPoblano->cantidad_ingrediente);
+
+					$ingredienteBurroPoblano = Ingrediente::find($listaIngredienteBurroPoblano->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteBurroPoblano->cantidad - $acumuladorIngrediente);
+
+					$ingredienteBurroPoblano->cantidad = $totalIngrediente;
+
+					$ingredienteBurroPoblano -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 
 		}
 
@@ -461,7 +913,9 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de alambre pastor, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoAlambrePastor($request, $idPedido, $acumuladoValorFactura){
 
-		$cero=0;
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
+		$cero=0;	
 		
 		if ($request->alambrePastor > $cero) {
 			
@@ -473,7 +927,31 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('25');
 
+			$listaIngredienteAlambrePastor = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->alambrePastor);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para el alambre pastor, se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteAlambrePastor as $listaIngredienteAlambrePastor) {
+
+				if ($listaIngredienteAlambrePastor->Comida_idComida == '25') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->alambrePastor * $listaIngredienteAlambrePastor->cantidad_ingrediente);
+
+					$ingredienteAlambrePastor = Ingrediente::find($listaIngredienteAlambrePastor->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteAlambrePastor->cantidad - $acumuladorIngrediente);
+
+					$ingredienteAlambrePastor->cantidad = $totalIngrediente;
+
+					$ingredienteAlambrePastor -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 
 			
 		}
@@ -484,6 +962,8 @@ class ControladorPedidos extends Controller
 //Si en la pantalla pedidos, se selecciona alguna cantidad de nachos pastor, se crea el registro del pedido en la tabla intermedia entre pedido y comida
 	public function crearPedidoNachosPastor($request, $idPedido, $acumuladoValorFactura){
 
+		$acumuladorIngrediente = 0;
+		$totalIngrediente = 0;
 		$cero=0;
 		
 		if ($request->nachosPastor > $cero) {
@@ -496,13 +976,38 @@ class ControladorPedidos extends Controller
 
 			$comida = Comida::find('26');
 
+			$listaIngredienteNachoPastor = Ingrediente_Comida::all();
+
 			$acumuladoValorFactura = $acumuladoValorFactura + ($comida->precio_comida * $request->nachosPastor);
+
+			//Se recorre la lista de ingredientes buscando los ingredientes necesarios para el nacho pastor, se calculan el total de ingredientes consumidos y se hace la resta al ingrediente correspondiente
+			foreach ($listaIngredienteNachoPastor as $listaIngredienteNachoPastor) {
+
+				if ($listaIngredienteNachoPastor->Comida_idComida == '26') {
+
+					$acumuladorIngrediente = $acumuladorIngrediente  + ($request->nachosPastor* $listaIngredienteNachoPastor->cantidad_ingrediente);
+
+					$ingredienteNachoPastor = Ingrediente::find($listaIngredienteNachoPastor->Ingrediente_idIngrediente);
+
+					$totalIngrediente = ($ingredienteNachoPastor->cantidad - $acumuladorIngrediente);
+
+					$ingredienteNachoPastor->cantidad = $totalIngrediente;
+
+					$ingredienteNachoPastor -> save();
+				}
+
+			$totalIngrediente = 0;
+
+			$acumuladorIngrediente = 0;	
+							
+			}
 
 			
 		}
 
 		return $acumuladoValorFactura;		
 	}
+
 
 
 /*BEBIDAS*/

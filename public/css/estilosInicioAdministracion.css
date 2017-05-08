@@ -3,6 +3,8 @@
 @import url(estilosOpcionesInventario.css);
 @import url(estiloVerPedidos.css);
 @import url(estilosSeguimientoInventario.css);
+@import url(estilosEspacioReportes.css);
+@import url(estilosEspacioNotificaciones.css);
 
 *{
 
